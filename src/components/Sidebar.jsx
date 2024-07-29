@@ -14,7 +14,7 @@ function Sidebar() {
         <ul className="space-y-5">
           <li>
             <Link to="/" className="block p-2 rounded-xl hover:bg-violet-200">
-              <GoHome className="w-6 h-6 text-neutral-600" />
+              <GoHome className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
           <li>
@@ -22,7 +22,7 @@ function Sidebar() {
               to="/inbox"
               className="block p-2 rounded-xl hover:bg-violet-200"
             >
-              <FiInbox className="w-6 h-6 text-neutral-600" />
+              <FiInbox className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
           <li>
@@ -30,7 +30,7 @@ function Sidebar() {
               to="/docs"
               className="block p-2 rounded-xl hover:bg-violet-200"
             >
-              <CgFileDocument className="w-6 h-6 text-neutral-600" />
+              <CgFileDocument className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
           <li>
@@ -38,7 +38,7 @@ function Sidebar() {
               to="/dashboard"
               className="block p-2 rounded-xl hover:bg-violet-200"
             >
-              <LiaChartBarSolid className="w-6 h-6 text-neutral-600" />
+              <LiaChartBarSolid className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
           <li>
@@ -46,7 +46,7 @@ function Sidebar() {
               to="/whiteboard"
               className="block p-2 rounded-xl hover:bg-violet-200"
             >
-              <HiMiniPencilSquare className="w-6 h-6 text-neutral-600" />
+              <HiMiniPencilSquare className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
         </ul>
