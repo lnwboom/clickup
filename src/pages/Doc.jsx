@@ -17,7 +17,7 @@ function Doc() {
   ];
 
   return (
-    <div className="mx-auto bg-white">
+    <div className="mx-auto bg-white h-screen flex flex-col">
       <Header />
       <hr className="border-t border-neutral-300 " />
       <div className="p-6">

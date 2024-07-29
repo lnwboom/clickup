@@ -1,30 +1,158 @@
 import * as React from "react";
+import { tasks } from "../data/data";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+} from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
+import { IoMdClose, IoMdDownload, IoMdUndo, IoMdRedo } from "react-icons/io";
 
-function DashboardInfo() {
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title
+);
+
+function DashboardInfo({ onClose }) {
+  const unassignedTasks = tasks.filter(
+    (task) => task.status === "IN PROGRESS"
+  ).length;
+  const completedTasks = tasks.filter(
+    (task) => task.status === "COMPLETED"
+  ).length;
+
+  const assigneeCounts = tasks.reduce((acc, task) => {
+    if (task.assignee !== "Unassigned") {
+      acc[task.assignee] = (acc[task.assignee] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const totalAssignedTasks = Object.values(assigneeCounts).reduce(
+    (sum, count) => sum + count,
+    0
+  );
+  const unassignedPercentage = (unassignedTasks / tasks.length) * 100;
+  const assignedPercentage = 100 - unassignedPercentage;
+
+  const pieChartData = {
+    labels: ["Unassigned", "Assigned"],
+    datasets: [
+      {
+        data: [unassignedPercentage, assignedPercentage],
+        backgroundColor: ["#e879f9", "#f0abfc"],
+        borderColor: ["#ffffff", "#ffffff"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            return `${context.label}: ${context.parsed.toFixed(1)}%`;
+          },
+        },
+      },
+    },
+  };
+
+  // Prepare data for bar chart
+  const priorities = ["Low", "Normal", "High", "Urgent"];
+  const statuses = ["TODO", "IN PROGRESS", "COMPLETED"];
+
+  const barChartData = {
+    labels: priorities,
+    datasets: statuses.map((status, index) => ({
+      label: status,
+      data: priorities.map(
+        (priority) =>
+          tasks.filter(
+            (task) => task.priority === priority && task.status === status
+          ).length
+      ),
+      backgroundColor: ["#e76f51", "#e9c46a", "#2a9d8f"][index],
+      borderColor: ["#FFFFFF", "#FFFFFF", "#FFFFFF"][index],
+      borderWidth: 1,
+    })),
+  };
+
+  const barChartOptions = {
+    responsive: true,
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Tasks by Priority and Status",
+      },
+    },
+  };
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col m-6">
+      <div className="flex justify-end mb-5">
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-violet-100  rounded w-fit"
+        >
+          <IoMdClose size={"1.5rem"} />
+        </button>
+      </div>
+
       <div className="flex-wrap content-start w-full max-md:max-w-full">
         <div className="flex gap-5 max-md:flex-col">
           <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
             <div className="flex flex-col grow justify-center font-semibold max-md:mt-6 max-md:max-w-full">
-              <div className="flex flex-col pt-3.5 pr-20 pb-14 pl-3.5 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
+              <div className="flex flex-col p-4 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
                 <div className="self-start text-base text-zinc-800">
                   Unassigned
                 </div>
-                <div className="mt-14 text-4xl text-center text-black max-md:mt-10">
-                  4<br />
+                <div className="my-14 text-4xl text-center text-black max-md:mt-10">
+                  {unassignedTasks}
+                  <br />
                   <span className="text-sm font-[275]">tasks in progress</span>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
-            <div className="flex flex-col grow p-2 w-full font-semibold bg-white rounded-xl border border-solid border-stone-500 max-md:mt-6 max-md:max-w-full">
+            <div className="flex flex-col grow p-4 w-full font-semibold bg-white rounded-xl border border-solid border-stone-500 max-md:mt-6 max-md:max-w-full">
               <div className="text-base text-zinc-800 max-md:max-w-full">
                 Completed
               </div>
-              <div className="mt-14 text-4xl text-center text-black max-md:mt-10">
-                1<br />
+              <div className="my-14 text-4xl text-center text-black max-md:mt-10">
+                {completedTasks}
+                <br />
                 <span className="text-sm font-[275]">tasks completed</span>
               </div>
             </div>
@@ -35,92 +163,24 @@ function DashboardInfo() {
         <div className="flex gap-5 max-md:flex-col">
           <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
             <div className="flex flex-col grow justify-center text-base max-md:mt-6 max-md:max-w-full">
-              <div className="flex flex-col items-center pt-3.5 pr-20 pb-12 pl-3.5 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
+              <div className="flex flex-col items-center p-4 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
                 <div className="self-start font-semibold text-zinc-800 max-md:max-w-full">
                   Total Tasks by Assignee
                 </div>
-                <div className="flex flex-col justify-center items-center mt-10 font-medium whitespace-nowrap bg-fuchsia-300 rounded-full aspect-square w-[330px] max-md:mt-10">
-                  <div className="flex overflow-hidden relative flex-col px-20 py-20 rounded-full border border-white border-solid aspect-square max-md:px-5">
-                    <img
-                      loading="lazy"
-                      src="https://cdn.builder.io/api/v1/image/assets/TEMP/472b0f122ae113dd313bfa50907fdf00cb96fdb67cf2b31906a646431c6cc897?"
-                      className="object-cover absolute inset-0 size-full"
-                    />
-                    <div className="relative self-end text-white border border-solid border-zinc-500 max-md:mr-2.5">
-                      20%
-                    </div>
-                    <div className="relative mt-28 mr-3.5 mb-3.5 ml-3 text-rose-50 border border-solid border-zinc-500 max-md:mx-2.5 max-md:mt-10">
-                      80%
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2.5 mt-9 text-xs text-neutral-700">
-                  <div className="flex flex-1 gap-2.5 whitespace-nowrap">
-                    <div className="shrink-0 w-5 h-5 bg-fuchsia-400 rounded-sm" />
-                    <div className="my-auto">Unassigned</div>
-                  </div>
-                  <div className="flex flex-1 gap-2.5">
-                    <div className="shrink-0 w-5 h-5 bg-fuchsia-300 rounded-sm" />
-                    <div className="my-auto">Assignee </div>
-                  </div>
+                <div className="w-[330px] h-[300px] my-10">
+                  <Pie data={pieChartData} options={pieChartOptions} />
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
             <div className="flex flex-col grow justify-center max-md:mt-6 max-md:max-w-full">
-              <div className="flex flex-col pt-3.5 pr-11 pb-12 pl-3.5 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
+              <div className="flex flex-col p-4 bg-white rounded-xl border border-solid border-stone-500 max-md:pr-5 max-md:max-w-full">
                 <div className="text-base font-semibold text-zinc-800 max-md:max-w-full">
                   My Work
                 </div>
-                <div className="self-start mt-11 ml-7 text-sm text-gray-500 max-md:mt-10 max-md:ml-2.5">
-                  Tasks
-                </div>
-                <div className="flex gap-3 self-end mt-5 max-w-full w-[475px] max-md:flex-wrap">
-                  <div className="flex flex-col self-start text-base whitespace-nowrap text-neutral-400">
-                    <div>3</div>
-                    <div className="mt-24 max-md:mt-10">2</div>
-                    <div className="mt-24 max-md:mt-10">1</div>
-                    <div className="mt-24 max-md:mt-10">0</div>
-                  </div>
-                  <div className="flex flex-col grow shrink-0 mt-1.5 basis-0 w-fit max-md:max-w-full">
-                    <div className="max-md:max-w-full">
-                      <div className="flex gap-5 max-md:flex-col">
-                        <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
-                          <div className="shrink-0 mx-auto bg-white border border-solid border-neutral-100 h-[109px] w-[229px]" />
-                        </div>
-                        <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
-                          <div className="shrink-0 mx-auto bg-white border border-solid border-neutral-100 h-[109px] w-[228px]" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="max-md:max-w-full">
-                      <div className="flex gap-5 max-md:flex-col">
-                        <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
-                          <div className="flex flex-col grow">
-                            <div className="shrink-0 bg-white border border-solid border-neutral-100 h-[109px]" />
-                            <div className="flex flex-col justify-center px-14 bg-white border border-solid border-neutral-100 max-md:px-5">
-                              <div className="shrink-0 bg-fuchsia-300 h-[109px]" />
-                            </div>
-                            <div className="self-center mt-3 text-xs text-neutral-400">
-                              [ Assignee ]{" "}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
-                          <div className="flex flex-col grow">
-                            <div className="shrink-0 bg-white border border-solid border-neutral-100 h-[109px]" />
-                            <div className="flex flex-col justify-center px-14 bg-white border border-solid border-neutral-100 max-md:px-5">
-                              <div className="z-10 shrink-0 mt-0 bg-fuchsia-400 h-[218px]" />
-                            </div>
-                            <div className="self-center mt-3 text-xs text-neutral-400">
-                              [ Unassigned ]
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="mt-10 h-[300px] ">
+                  <Bar data={barChartData} options={barChartOptions} />
                 </div>
               </div>
             </div>
@@ -131,4 +191,4 @@ function DashboardInfo() {
   );
 }
 
-export default DashboardInfo
+export default DashboardInfo;

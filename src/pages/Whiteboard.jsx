@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { sampleData as docData } from "../components/data/doc";
+import { WhiteboardData as Data } from "../components/data/whiteboard";
 import DocModal from "../components/Doc/DocModal";
+import WhiteboardInfo from "../components/Whiteboard.jsx/WhiteBoardInfo";
 
-function Whiteboard() {
+function WhiteboardPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeWhiteboard, setActiveWhiteboard] = useState(null);
 
   const tabs = ["All", "My Whiteboards"];
   const tableHeaders = [
@@ -17,21 +19,27 @@ function Whiteboard() {
   ];
 
   return (
-    <div className="mx-auto bg-white">
-      <Header />
-      <hr className="border-t border-neutral-300 " />
-      <div className="p-6">
-        <DocumentCategories />
-        <TabsAndSearch
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          tabs={tabs}
-        />
-        <DocumentTable headers={tableHeaders} />
-      </div>
+    <div className="mx-auto bg-white h-screen flex flex-col">
+    <Header />
+    <hr className="border-t border-neutral-300" />
+    <div className="flex-grow overflow-hidden">
+      {activeWhiteboard ? (
+        <WhiteboardInfo onClose={() => setActiveWhiteboard(null)} />
+      ) : (
+        <div className="p-6 h-full overflow-auto">
+          <DocumentCategories setActiveWhiteboard={setActiveWhiteboard} />
+          <TabsAndSearch
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            tabs={tabs}
+          />
+          <DocumentTable headers={tableHeaders} />
+        </div>
+      )}
     </div>
+  </div>
   );
 }
 
@@ -48,7 +56,7 @@ function Header() {
   );
 }
 
-function DocumentCategories() {
+function DocumentCategories({ setActiveWhiteboard }) {
   const categories = [
     {
       title: "Recent",
@@ -67,45 +75,39 @@ function DocumentCategories() {
   return (
     <div className="flex gap-5 mb-10">
       {categories.map((category, index) => (
-        <DocumentCategory key={index} {...category} />
+        <DocumentCategory
+          key={index}
+          {...category}
+          setActiveWhiteboard={setActiveWhiteboard}
+        />
       ))}
     </div>
   );
 }
 
-function DocumentCategory({ title, icon }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+function DocumentCategory({ title, icon, setActiveWhiteboard }) {
   const handleCategoryClick = () => {
-    setIsModalOpen(true);
+    setActiveWhiteboard(title);
   };
 
   return (
-    <>
-      <div 
-        className="flex-1 p-4 bg-white rounded-xl border border-solid border-stone-300 cursor-pointer"
-        onClick={handleCategoryClick}
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-base font-semibold text-zinc-800">{title}</h3>
-          <img src={icon} alt={`${title} icon`} className="w-3.5 aspect-[3.45]" />
-        </div>
-        <DocumentList limit={3} />
+    <div
+      className="flex-1 p-4 bg-white rounded-xl border border-solid border-stone-300 cursor-pointer"
+      onClick={handleCategoryClick}
+    >
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-base font-semibold text-zinc-800">{title}</h3>
+        <img src={icon} alt={`${title} icon`} className="w-3.5 aspect-[3.45]" />
       </div>
-
-      <DocModal
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        title={title}
-      />
-    </>
+      <DocumentList limit={3} />
+    </div>
   );
 }
 
 function DocumentList({ limit = 3 }) {
   return (
     <ul>
-      {docData.slice(0, limit).map((doc, index) => (
+      {Data.slice(0, limit).map((doc, index) => (
         <li
           key={index}
           className="flex items-center gap-3 py-1 text-sm text-neutral-400 hover:bg-gray-50"
@@ -180,7 +182,7 @@ function DocumentTable({ headers }) {
         </tr>
       </thead>
       <tbody>
-        {docData.map((row, index) => (
+        {Data.map((row, index) => (
           <tr key={index} className="hover:bg-gray-50">
             <td className="py-2 border-b border-neutral-200">{row.name}</td>
             <td className="py-2 border-b border-neutral-200">{row.location}</td>
@@ -199,4 +201,4 @@ function DocumentTable({ headers }) {
   );
 }
 
-export default Whiteboard;
+export default WhiteboardPage;

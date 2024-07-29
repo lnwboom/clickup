@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { sampleData as docData } from "../components/data/doc";
-import DocModal from "../components/Doc/DocModal";
+
+import DashboardInfo from "../components/Dashboard/DashboardInfo";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [activeDashboard, setActiveDashboard] = useState(null);
   const tabs = ["All", "My Dashboards", "Workspace", "Private"];
   const tableHeaders = [
     "Name",
@@ -17,11 +18,14 @@ function Dashboard() {
   ];
 
   return (
-    <div className="mx-auto bg-white">
-      <Header />
-      <hr className="border-t border-neutral-300 " />
+    <div className="mx-auto bg-white h-screen flex flex-col">
+    <Header />
+    <hr className="border-t border-neutral-300" />
+    {activeDashboard ? (
+        <DashboardInfo onClose={() => setActiveDashboard(null)} />
+      ) : (
       <div className="p-6">
-        <DocumentCategories />
+       <DocumentCategories setActiveDashboard={setActiveDashboard} />
         <TabsAndSearch
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -30,7 +34,9 @@ function Dashboard() {
           tabs={tabs}
         />
         <DocumentTable headers={tableHeaders} />
+      
       </div>
+      )}
     </div>
   );
 }
@@ -48,7 +54,7 @@ function Header() {
   );
 }
 
-function DocumentCategories() {
+function DocumentCategories({setActiveDashboard}) {
   const categories = [
     {
       title: "Recent",
@@ -67,17 +73,18 @@ function DocumentCategories() {
   return (
     <div className="flex gap-5 mb-10">
       {categories.map((category, index) => (
-        <DocumentCategory key={index} {...category} />
+        <DocumentCategory key={index} {...category}
+        setActiveDashboard={setActiveDashboard} />
       ))}
     </div>
   );
 }
 
-function DocumentCategory({ title, icon }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+function DocumentCategory({ title, icon ,setActiveDashboard}) {
+  
 
   const handleCategoryClick = () => {
-    setIsModalOpen(true);
+    setActiveDashboard(title)
   };
 
   return (
@@ -97,11 +104,7 @@ function DocumentCategory({ title, icon }) {
         <DocumentList limit={3} />
       </div>
 
-      <DocModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={title}
-      />
+      
     </>
   );
 }

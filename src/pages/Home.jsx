@@ -7,17 +7,31 @@ import CardAgenda from "../components/Home/CardAgenda";
 
 function Home() {
   return (
-    <div className="mx-auto bg-white">
+    <div className="mx-auto bg-white h-screen flex flex-col">
       <Header />
       <hr className="border-t border-neutral-300" />
-      <div className="grid grid-cols-2 gap-4 py-4 mt-4 px-4 m-4 items-start ">
-        <CardRecent />
 
-        <CardAgenda />
-        <CardMyWork />
-        <div className="flex flex-col gap-4 h-full">
-          <CardAssigned />
-          <CardAiStandup />
+      <div class="flex flex-col m-6 ">
+        <div class="flex-wrap content-start w-full max-md:max-w-full">
+          <div class="flex gap-5 max-md:flex-col">
+            <div class="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
+              <CardRecent />
+            </div>
+            <div class="flex flex-col  w-6/12 max-md:ml-0 max-md:w-full">
+              <CardAgenda />
+            </div>
+          </div>
+          <div class="flex-wrap content-start mt-7 w-full max-md:max-w-full">
+            <div class="flex gap-5 max-md:flex-col">
+              <div class="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
+                <CardMyWork />
+              </div>
+              <div class="flex flex-col gap-6 w-6/12 max-md:ml-0 max-md:w-full">
+                <CardAssigned />
+                <CardAiStandup/>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

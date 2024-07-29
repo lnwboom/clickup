@@ -5,7 +5,7 @@ function InboxPage() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [isComposing, setIsComposing] = useState(false);
   return (
-    <div className="mx-auto bg-white">
+    <div className="mx-auto bg-white h-screen flex flex-col">
       <Header />
       <hr className="border-t border-neutral-300" />
       <div className="p-6">

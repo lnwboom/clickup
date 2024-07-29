@@ -7,7 +7,7 @@ export const tasks = [
     date: '2024-06-24',
     status: 'TODO',
     assignee: 'Alice',
-    priority: 'High',
+    priority: 'Urgent',
   },
   {
     id: 2,
@@ -34,7 +34,7 @@ export const tasks = [
     date: '2024-06-23',
     status: 'TODO',
     assignee: 'David',
-    priority: 'Low',
+    priority: 'Urgent',
   },
   {
     id: 5,

@@ -10,15 +10,15 @@ import Settings from "./pages/Settings";
 import NotificationSettings from "./pages/NotificationSettings";
 import Doc from "./pages/Doc";
 import Dashboard from "./pages/Dashboard";
-import Whiteboard from "./pages/Whiteboard";
+import WhiteboardPage from "./pages/Whiteboard";
 import Inbox from "./pages/InboxPage.jsx";
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-100 flex flex-col font-poppins">
+      <div className=" bg-gray-100 flex flex-col font-poppins">
         <Header />
-        <div className="flex flex-grow">
+        <div className="flex flex-auto h-screen">
           <Sidebar />
           <main className="flex-grow">
             <Routes>
@@ -34,7 +34,7 @@ function App() {
                 element={<NotificationSettings />}
               />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/whiteboard" element={<Whiteboard />} />
+              <Route path="/whiteboard" element={<WhiteboardPage />} />
               <Route path="/inbox" element={<Inbox />} />
             </Routes>
           </main>
