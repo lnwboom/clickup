@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { sampleData as docData } from "../../components/data/doc";
-import picAvatar from "../../assets/avatar.png"
+import picAvatar from "../../assets/avatar.png";
 
 function DocModal({ isOpen, onClose, title, children }) {
-  if (!isOpen) return null;
-
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
 
@@ -36,7 +34,7 @@ function DocModal({ isOpen, onClose, title, children }) {
     setTabs([...tabs, newTab]);
     setActiveTab(newTab.id);
   };
-
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="flex flex-col justify-center shadow-sm w-full max-w-4xl">

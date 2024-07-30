@@ -7,4 +7,5 @@ export const ACTIONS = {
   // In constants.js or where ACTIONS are defined
 ERASER: 'eraser',
 TEXT: 'text',
+IMAGE: "IMAGE",
 };

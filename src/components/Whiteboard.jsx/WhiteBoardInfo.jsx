@@ -6,6 +6,7 @@ import { FaLongArrowAltRight, FaEraser } from "react-icons/fa";
 import { LuPencil } from "react-icons/lu";
 import { GiArrowCursor } from "react-icons/gi";
 import { FaRegCircle } from "react-icons/fa6";
+import { FaImage } from "react-icons/fa";
 import {
   Arrow,
   Circle,
@@ -19,6 +20,7 @@ import { useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ACTIONS } from "./constants";
 import React, { useEffect } from "react";
+import { Image } from "react-konva";
 
 export default function WhiteboardInfo({ onClose }) {
   const stageRef = useRef();
@@ -32,6 +34,7 @@ export default function WhiteboardInfo({ onClose }) {
   const [circles, setCircles] = useState([]);
   const [arrows, setArrows] = useState([]);
   const [scribbles, setScribbles] = useState([]);
+  const [images, setImages] = useState([]);
 
   const isPaining = useRef();
   const currentShapeId = useRef();
@@ -60,6 +63,13 @@ export default function WhiteboardInfo({ onClose }) {
       setTexts([...texts, newText]);
       setEditingText(newText);
       return;
+    }
+    if (action === ACTIONS.IMAGE) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = handleImageUpload;
+      input.click();
     }
 
     switch (action) {
@@ -224,7 +234,36 @@ export default function WhiteboardInfo({ onClose }) {
     link.click();
     document.body.removeChild(link);
   }
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const imageObj = {
+          id: uuidv4(),
+          x: 20,
+          y: 20,
+          width: img.width,
+          height: img.height,
+          image: img,
+        };
+        setImages([...images, imageObj]);
+        addToHistory({
+          rectangles,
+          circles,
+          arrows,
+          scribbles,
+          texts,
+          images: [...images, imageObj],
+        });
+      };
+    };
+
+    reader.readAsDataURL(file);
+  }
   function onClick(e) {
     if (action !== ACTIONS.SELECT) return;
     const target = e.currentTarget;
@@ -233,7 +272,6 @@ export default function WhiteboardInfo({ onClose }) {
   const [history, setHistory] = useState([]);
   const [currentStep, setCurrentStep] = useState(-1);
 
-  // Function to add current state to history
   const addToHistory = (newState) => {
     const newHistory = history.slice(0, currentStep + 1);
     newHistory.push(newState);
@@ -241,7 +279,6 @@ export default function WhiteboardInfo({ onClose }) {
     setCurrentStep(newHistory.length - 1);
   };
 
-  // Undo function
   const undo = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
@@ -250,10 +287,11 @@ export default function WhiteboardInfo({ onClose }) {
       setCircles(previousState.circles);
       setArrows(previousState.arrows);
       setScribbles(previousState.scribbles);
+      setTexts(previousState.texts);
+      setImages(previousState.images);
     }
   };
 
-  // Redo function
   const redo = () => {
     if (currentStep < history.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -262,6 +300,8 @@ export default function WhiteboardInfo({ onClose }) {
       setCircles(nextState.circles);
       setArrows(nextState.arrows);
       setScribbles(nextState.scribbles);
+      setTexts(nextState.texts);
+      setImages(nextState.images);
     }
   };
 
@@ -583,6 +623,16 @@ export default function WhiteboardInfo({ onClose }) {
             >
               <IoMdRedo size={"1.5rem"} />
             </button>
+            <button
+              className={
+                action === ACTIONS.IMAGE
+                  ? "bg-violet-300 p-1 rounded"
+                  : "p-1 hover:bg-violet-100 rounded"
+              }
+              onClick={() => setAction(ACTIONS.IMAGE)}
+            >
+              <FaImage size={"1.5rem"} />
+            </button>
           </div>
         </div>
         {/* Canvas */}
@@ -678,7 +728,6 @@ export default function WhiteboardInfo({ onClose }) {
                   onDblClick={(e) => {
                     handleTextDblClick(e.target);
                   }}
-                  
                   onClick={onSelect}
                   onDblTap={(e) => {
                     handleTextDblClick(e.target);
@@ -698,6 +747,20 @@ export default function WhiteboardInfo({ onClose }) {
                   }}
                 />
               )}
+
+              {images.map((img) => (
+                <Image
+                  key={img.id}
+                  id={img.id}
+                  x={img.x}
+                  y={img.y}
+                  width={img.width}
+                  height={img.height}
+                  image={img.image}
+                  draggable={isDraggable}
+                  onClick={onClick}
+                />
+              ))}
 
               <Transformer ref={transformerRef} />
             </Layer>
