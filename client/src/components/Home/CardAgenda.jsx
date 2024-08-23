@@ -106,7 +106,7 @@ function CardAgenda() {
     setSelectedDate(null);
   };
 
-  const monthName = currentMonth.toLocaleString("en-US", { month: "long" });
+  const monthName = currentMonth.toLocaleString("en-US", { month: "short" });
   const year = currentMonth.getFullYear();
 
   return (

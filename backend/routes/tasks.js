@@ -4,11 +4,10 @@ const Task = require('../models/Task');
 const authMiddleware = require('../middleware/authMiddleware');
 
 
-// GET all tasks
-router.get('/', async (req, res) => {
+// GET all tasks from User
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    // const tasks = await Task.find().populate('project', 'name').populate('user', 'username');
-    const tasks = await Task.find()
+    const tasks = await Task.find({ user: req.user._id });
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -40,7 +39,7 @@ router.post('/tasks', authMiddleware, async (req, res) => {
 });
 
 // UPDATE a task
-router.patch('/:id', getTask, async (req, res) => {
+router.patch('/:id', authMiddleware, getTask, async (req, res) => {
   if (req.body.title != null) {
     res.task.title = req.body.title;
   }
@@ -72,24 +71,24 @@ router.patch('/:id', getTask, async (req, res) => {
 });
 
 // DELETE a task
-router.delete('/:id', getTask, async (req, res) => {
+router.delete('/:id', authMiddleware, getTask, async (req, res) => {
   try {
-    await res.task.remove();
+    await Task.deleteOne({ _id: res.task._id });
     res.json({ message: 'Task deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET tasks by project
-router.get('/project/:projectId', async (req, res) => {
-  try {
-    const tasks = await Task.find({ project: req.params.projectId }).populate('user', 'username');
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// // GET tasks by project
+// router.get('/project/:projectId', async (req, res) => {
+//   try {
+//     const tasks = await Task.find({ project: req.params.projectId }).populate('user', 'username');
+//     res.json(tasks);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
 
 // GET tasks by user
 router.get('/user/:userId', async (req, res) => {
@@ -115,10 +114,14 @@ router.get('/:id/subtasks', getTask, async (req, res) => {
 async function getTask(req, res, next) {
   let task;
   try {
-    // task = await Task.findById(req.params.id).populate('project', 'name').populate('user', 'username');
-    task = await Task.findById(req.params.id)
+    task = await Task.findById(req.params.id);
     if (task == null) {
       return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    // Add this check
+    if (task.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to access this task' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });

@@ -1,58 +1,78 @@
 // src/components/Home/TaskModal.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaRegFlag } from "react-icons/fa";
 
 const TaskModal = ({ tasks, selectedTaskId, onClose, onSave }) => {
   const [activeTask, setActiveTask] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [editedTasks, setEditedTasks] = useState(tasks);
+  
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTask = async () => {
+      if (!selectedTaskId) return;
+      setIsLoading(true);
+      setError(null);
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/tasks/${selectedTaskId}`
-        );
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:3000/api/tasks/${selectedTaskId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setActiveTask(response.data);
       } catch (error) {
+        setError("Error fetching task. Please try again.");
         console.error("Error fetching task:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    if (selectedTaskId) {
-      fetchTask();
-    }
+    fetchTask();
   }, [selectedTaskId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setActiveTask({ ...activeTask, [name]: value });
+    setActiveTask((prevTask) => ({ ...prevTask, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = axios.patch(
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(
         `http://localhost:3000/api/tasks/${activeTask._id}`,
-        activeTask
+        activeTask,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
-      onSave(response.data);
+      onSave(response.data);  // Pass the updated task back to CardRecent
     } catch (error) {
+      setError("Error updating task. Please try again.");
       console.error("Error updating task:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+
+  if (isLoading) return <div className="text-center">Loading...</div>;
+  if (error) return <div className="text-center text-red-500">{error}</div>;
   if (!activeTask) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white rounded-3xl border-4 border-solid border-neutral-400 max-w-3xl w-full">
         <div className="m-4 flex space-x-2 overflow-x-auto border-b border-solid border-neutral-400">
-          {tasks.map((task) => (
+        {tasks.map((task) => (
             <button
               key={task._id}
-              onClick={() => setActiveTask(task._id)}
+              onClick={() => setActiveTask(task)}
               className={`px-4 py-2 rounded-t-lg ${
-                activeTask === task._id
+                activeTask._id === task._id
                   ? "pb-4 text-violet-500 border-b-2 border-violet-500"
                   : ""
               }`}
@@ -132,7 +152,7 @@ const TaskModal = ({ tasks, selectedTaskId, onClose, onSave }) => {
                   <img
                     loading="lazy"
                     src="https://cdn.builder.io/api/v1/image/assets/TEMP/6123589d7e3f37571ed3c141961c4170baf2246e6afa9e0b35983fcf6aa26a83?"
-                    className="shrink-0 self-start w-6 aspect-square"
+                    className="shrink-0 self-center w-6 aspect-square"
                   />
                   <div className="my-auto text-base font-medium text-black">
                     Date
@@ -148,11 +168,8 @@ const TaskModal = ({ tasks, selectedTaskId, onClose, onSave }) => {
                   />
                 </div>
                 <div className="flex gap-3.5 justify-between px-0.5 max-md:flex-wrap">
-                  <img
-                    loading="lazy"
-                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/959303cd0233075c9bc3ab3ceaad4b1d7d0ed050234038d1ee094eff9c477813?"
-                    className="shrink-0 self-start border border-black border-solid aspect-[0.85] stroke-[1px] stroke-black w-[17px]"
-                  />
+                 
+                  <FaRegFlag  className="self-center  aspect-[0.85] stroke-[1px] stroke-black w-[17px]" />
                   <div className="my-auto text-base font-medium text-black">
                     Priority
                   </div>

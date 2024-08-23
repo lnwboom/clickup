@@ -1,6 +1,5 @@
 // src/components/Home/CardMyWork.jsx
 import React, { useState, useEffect } from "react";
-import { tasks as mockTasks } from "../data/data";
 import TaskModal from "../modal/TaskModal";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
@@ -9,44 +8,52 @@ function CardMyWork() {
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { user } = useAuth();
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   useEffect(() => {
     const fetchTasks = async () => {
+      setIsLoading(true);
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         const response = await axios.get("http://localhost:3000/api/tasks", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         });
-        setTasks(response.data);
+        setTasks(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching tasks:", error);
+        setError("Failed to fetch tasks. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
     if (user) {
       fetchTasks();
     }
-  }, [user]);
+  }, [user, updateTrigger]);
 
   const handleTaskClick = (taskId) => {
     setSelectedTask(taskId);
     setIsModalOpen(true);
   };
 
-  const handleSaveTask = (updatedTasks) => {
-    setTasks(updatedTasks);
+  const handleSaveTask = (updatedTask) => {
+    setTasks(prevTasks => prevTasks.map(task => 
+      task._id === updatedTask._id ? updatedTask : task
+    ));
     setIsModalOpen(false);
     setSelectedTask(null);
+    setUpdateTrigger(prev => prev + 1);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedTask(null);
   };
-  const handleAddTask = (newTask) => {
-    setTasks([...tasks, newTask]);
-  };
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="flex flex-col px-3.5 py-3.5 bg-white rounded-xl border border-solid border-stone-300 text-stone-700">
@@ -54,22 +61,25 @@ function CardMyWork() {
         My Work
       </div>
       <div className="flex flex-col mt-6 space-y-2">
-        {tasks.map((task) => (
-          <WorkCard
-            key={task._id}
-            task={task}
-            onClick={() => handleTaskClick(task._id)}
-          />
-        ))}
+      {tasks.length > 0 ? (
+          tasks.map((task) => (
+            <WorkCard
+              key={task._id}
+              task={task}
+              onClick={() => handleTaskClick(task._id)}
+            />
+          ))
+        ) : (
+          <div>No tasks available.</div>
+        )}
       </div>
 
       {isModalOpen && (
         <TaskModal
-          tasks={tasks}
-          selectedTaskId={selectedTask}
-          onClose={handleCloseModal}
-          onSave={handleSaveTask}
-          onAddTask={handleAddTask}
+        tasks={tasks}
+        selectedTaskId={selectedTask}
+        onClose={handleCloseModal}
+        onSave={handleSaveTask}
         />
       )}
     </div>
