@@ -32,7 +32,7 @@ function addAgenda({ date, onSave, onClose }) {
           {date.toLocaleString('en-US', { weekday: 'short' })}
         </div>
       </div>
-      <div className="flex gap-1 py-2.5 mt-6 text-xs font-medium rounded-md border border-solid bg-stone-50 border-stone-300">
+      <div className="flex gap-2 py-2.5 pl-2 mt-6 text-xs font-medium rounded-md border border-solid bg-stone-50 border-stone-300">
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/d7248a35a0bb2ae0aaff70290b1140e1dd2b97bc9994616f3b56b9f02f7ab48b?"
@@ -46,7 +46,7 @@ function addAgenda({ date, onSave, onClose }) {
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
-      <div className="flex gap-5 px-px mt-3.5 w-full text-sm font-medium">
+      <div className="flex justify-center gap-10 mt-3.5 w-full text-sm font-medium">
         <div className="flex  gap-1.5">
           <div className="grow my-auto">Time : </div>
           <input
@@ -65,23 +65,24 @@ function addAgenda({ date, onSave, onClose }) {
           <div className="self-stretch my-auto">:</div>
           <input
             type="text"
-            className="justify-center py-1.5 rounded border border-solid bg-stone-50 border-stone-300"
+            className="justify-center py-1.5 pl-2 rounded border border-solid bg-stone-50 border-stone-300"
             placeholder="Assignee"
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
           />
         </div>
       </div>
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end gap-2 mt-4">
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+          // className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+          className="justify-center px-4 py-2 text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 rounded-xl"
         >
           Save
         </button>
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          className="justify-center px-4 py-2 text-sm font-semibold  bg-red-500 text-white  hover:bg-red-600 rounded-xl"
         >
           Cancel
         </button>

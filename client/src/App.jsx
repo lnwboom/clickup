@@ -16,7 +16,8 @@ import axios from "axios";
 axios.defaults.baseURL = "http://localhost:3000";
 import { useAuth } from "./context/AuthContext.jsx";
 import { Navigate } from "react-router-dom";
-
+import Workspace from "./pages/Workspace.jsx";
+import Workspaces from "./components/Workspaces/Workspaces.jsx";
 function App() {
   const { user, loading } = useAuth();
   if (loading) {
@@ -30,6 +31,8 @@ function App() {
           <Sidebar />
           <main className="flex-grow">
             <Routes>
+            <Route path="/workspaces" element={<Workspaces />} />
+            <Route path="/workspace/:workspaceId" element={<Workspace />} />
               <Route
                 path="/"
                 element={user ? <Home /> : <Navigate to="/login" />}

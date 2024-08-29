@@ -8,6 +8,9 @@ import grid from "../assets/grid.png";
 import MenuDropdown from "./MenuDropdown";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FaSearch } from "react-icons/fa";
+import { FaCirclePlus } from "react-icons/fa6";
+import { CgMenuGridO } from "react-icons/cg";
 
 function Header({ onAddTask }) {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -48,7 +51,8 @@ function Header({ onAddTask }) {
           ClickUP
         </Link>
 
-        <div className="flex-grow max-w-2xl mx-4">
+        <div className="flex flex-grow max-w-2xl mx-4">
+          {/* <FaSearch className=""/> */}
           <input
             type="text"
             placeholder="Search..."
@@ -57,16 +61,17 @@ function Header({ onAddTask }) {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button
+          
+
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <button
             className="flex items-center space-x-2 px-3 py-2 rounded hover:bg-slate-600"
             onClick={() => setIsModalOpen(true)}
             // onAddTask={onAddTask}
           >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/fdfe43e42b67cf1b2d27485e7d2bc8292760dc2df070ba99ad88b8296522a7a5?"
-              alt="New"
-              className="w-6 h-6 rounded-full"
-            />
+            
+            <FaCirclePlus className="w-5 h-5"  />
             <span>New</span>
           </button>
 
@@ -77,7 +82,7 @@ function Header({ onAddTask }) {
               onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
               className="p-2 rounded hover:bg-slate-600"
             >
-              <img src={grid} alt="Menu" className="w-6 h-6" />
+              <CgMenuGridO  className="w-8 h-8" />
             </button>
             {isMenuDropdownOpen && (
               <div className="absolute right-0 mt-2 z-10">
@@ -86,8 +91,6 @@ function Header({ onAddTask }) {
             )}
           </div>
 
-          {user ? (
-            <div className="relative">
               <button
                 onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                 className="flex items-center space-x-2 p-2 rounded hover:bg-slate-600"
@@ -100,7 +103,7 @@ function Header({ onAddTask }) {
                 <span>{user.username}</span>
               </button>
               {isUserDropdownOpen && (
-                <div className="absolute right-0 mt-2 z-10">
+                <div className="absolute right-20 mt-80 z-20">
                   <UserDropdown user={user} onLogout={handleLogout} />
                 </div>
               )}

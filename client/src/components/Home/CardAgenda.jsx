@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AddAgenda from "./addAgenda";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const DateCard = ({ date, month, year, isCurrentMonth, event, onAddClick }) => (
   <div
@@ -40,13 +42,43 @@ const DateCard = ({ date, month, year, isCurrentMonth, event, onAddClick }) => (
 );
 
 function CardAgenda() {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 2)); // March 2024
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [events, setEvents] = useState({
-    4: { title: "#ประชุม", time: "11:30" },
-    7: { title: "#ประชุม", time: "12:30" },
-    10: { title: "#ประชุม", time: "12:30" },
-  });
+  const [events, setEvents] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchAgendaItems();
+  }, [user, currentMonth]);
+
+  const fetchAgendaItems = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get("http://localhost:3000/api/agenda", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const agendaItems = response.data;
+      const formattedEvents = {};
+      agendaItems.forEach(item => {
+        const date = new Date(item.date);
+        if (date.getMonth() === currentMonth.getMonth() && date.getFullYear() === currentMonth.getFullYear()) {
+          formattedEvents[date.getDate()] = {
+            title: item.description,
+            time: item.time,
+            id: item._id
+          };
+        }
+      });
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error("Error fetching agenda items:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -91,15 +123,17 @@ function CardAgenda() {
     );
   };
 
-  const handleSaveEvent = (newEvent) => {
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [newEvent.date.getDate()]: {
-        title: newEvent.description,
-        time: newEvent.time,
-      },
-    }));
-    setSelectedDate(null);
+  const handleSaveEvent = async (newEvent) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post("http://localhost:3000/api/agenda", newEvent, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchAgendaItems(); // Refresh the events after saving
+      setSelectedDate(null);
+    } catch (error) {
+      console.error("Error saving event:", error);
+    }
   };
 
   const handleCloseAddAgenda = () => {

@@ -5,7 +5,7 @@ import { HiMiniPencilSquare } from "react-icons/hi2";
 import { LiaChartBarSolid } from "react-icons/lia";
 import { CgFileDocument } from "react-icons/cg";
 import { FiInbox } from "react-icons/fi";
-
+import { HiOutlineViewGridAdd } from "react-icons/hi";
 import { GoHome } from "react-icons/go";
 function Sidebar() {
   return (
@@ -15,6 +15,14 @@ function Sidebar() {
           <li>
             <Link to="/" className="block p-2 rounded-xl hover:bg-violet-200">
               <GoHome className="w-6 h-6 text-[#535353]" />
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/workspaces"
+              className="block p-2 rounded-xl hover:bg-violet-200"
+            >
+              <HiOutlineViewGridAdd className="w-6 h-6 text-[#535353]" />
             </Link>
           </li>
           <li>

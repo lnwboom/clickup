@@ -24,11 +24,13 @@ app.use(express.json());
 const usersRouter = require('./routes/users');
 // const projectsRouter = require('./routes/projects');
 const tasksRouter = require('./routes/tasks');
-
+const agendaRoutes = require('./routes/agenda');
+const workspacesRouter = require('./routes/workspaces')
 app.use('/api/users', usersRouter);
 // app.use('/api/projects', projectsRouter);
 app.use('/api/tasks', authMiddleware, tasksRouter);
-
+app.use('/api/agenda', agendaRoutes); 
+app.use('/api/workspaces',workspacesRouter)
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
